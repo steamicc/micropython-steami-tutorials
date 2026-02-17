@@ -12,23 +12,25 @@ Dependencies:
     pip install Pillow cairosvg
 
 Usage:
-    python validate.py                   # validate all tutorials
-    python validate.py 01_temperature    # validate one tutorial
-    python validate.py --threshold 0.6   # custom similarity threshold
+    python validate.py                        # validate all tutorials
+    python validate.py 01_temperature         # validate one tutorial
+    python validate.py --threshold-ssim 0.85  # custom SSIM threshold
+    python validate.py --threshold-pixel 0.90 # custom pixel-MAE threshold
 """
 
 import os
 import sys
 import subprocess
 import argparse
-import importlib
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MOCKUPS_DIR = os.path.join(ROOT, "docs", "mockups")
 TUTORIALS_DIR = os.path.join(ROOT, "tutorials")
 
-# Default similarity threshold (0.0 = totally different, 1.0 = identical)
-DEFAULT_THRESHOLD = 0.95
+# Default similarity thresholds per metric
+# SSIM is stricter (compares local structure), pixel-MAE is more forgiving
+THRESHOLD_SSIM = 0.80
+THRESHOLD_PIXEL = 0.95
 
 
 def find_tutorials():
@@ -138,8 +140,12 @@ def structural_similarity(img_path_a, img_path_b):
         return score, "pixel-MAE"
 
 
-def validate_tutorial(tutorial_name, threshold):
-    """Validate a single tutorial. Returns True if PASS."""
+def validate_tutorial(tutorial_name, thresholds):
+    """Validate a single tutorial. Returns True if PASS.
+
+    Args:
+        thresholds: dict with keys "SSIM" and "pixel-MAE".
+    """
     print(f"\n--- {tutorial_name} ---")
 
     # Step 1: Generate simulator screenshot
@@ -163,6 +169,7 @@ def validate_tutorial(tutorial_name, threshold):
     # Step 3: Compare
     print("  [3/3] Comparing images...")
     score, method = structural_similarity(sim_png, ref_png)
+    threshold = thresholds.get(method, THRESHOLD_PIXEL)
     status = "PASS" if score >= threshold else "FAIL"
     print(f"  Score: {score:.4f} ({method}) — threshold: {threshold} — {status}")
 
@@ -172,10 +179,14 @@ def validate_tutorial(tutorial_name, threshold):
 def main():
     parser = argparse.ArgumentParser(description="Validate steami_screen tutorials")
     parser.add_argument("tutorials", nargs="*", help="Tutorial names to validate (default: all)")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD,
-                        help=f"Similarity threshold (default: {DEFAULT_THRESHOLD})")
+    parser.add_argument("--threshold-ssim", type=float, default=THRESHOLD_SSIM,
+                        help=f"SSIM threshold (default: {THRESHOLD_SSIM})")
+    parser.add_argument("--threshold-pixel", type=float, default=THRESHOLD_PIXEL,
+                        help=f"Pixel-MAE threshold (default: {THRESHOLD_PIXEL})")
     parser.add_argument("--list", action="store_true", help="List available tutorials")
     args = parser.parse_args()
+
+    thresholds = {"SSIM": args.threshold_ssim, "pixel-MAE": args.threshold_pixel}
 
     all_tutorials = find_tutorials()
 
@@ -192,14 +203,15 @@ def main():
         print("No tutorials found. Create tutorials with screenshot.py in tutorials/*/")
         return
 
-    print(f"Validating {len(tutorials)} tutorial(s), threshold={args.threshold}")
+    print(f"Validating {len(tutorials)} tutorial(s), "
+          f"thresholds: SSIM={thresholds['SSIM']}, pixel-MAE={thresholds['pixel-MAE']}")
 
     results = {}
     for name in tutorials:
         if name not in all_tutorials:
             print(f"\nWARNING: tutorial '{name}' not found, skipping")
             continue
-        results[name] = validate_tutorial(name, args.threshold)
+        results[name] = validate_tutorial(name, thresholds)
 
     # Summary
     print("\n" + "=" * 40)

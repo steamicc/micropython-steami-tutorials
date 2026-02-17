@@ -17,9 +17,9 @@ import math
 # --- Color constants (SSD1327 grayscale 0-15) ---
 
 BLACK = 0
-DARK = 3
-GRAY = 7
-LIGHT = 10
+DARK = 6
+GRAY = 9
+LIGHT = 11
 WHITE = 15
 
 # --- Cardinal position names ---
@@ -110,9 +110,14 @@ class Screen:
 
         if at == "CENTER":
             x = cx - tw // 2
-            y = cy - char_h // 2
             if unit:
-                y -= char_h // 4  # shift up to make room for unit
+                # Center the full block (value + gap + unit) vertically
+                gap = char_h // 2
+                unit_h = self.CHAR_H
+                block_h = char_h + gap + unit_h
+                y = cy - block_h // 3  # visual center biased up
+            else:
+                y = cy - char_h // 2
         elif at == "W":
             x = self.width // 4 - tw // 2
             y = cy - char_h // 2

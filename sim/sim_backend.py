@@ -134,7 +134,7 @@ class SimBackend:
         result = self._img.copy()
 
         if circular:
-            # Create circular mask
+            # Circular mask
             mask = Image.new("L", (w, h), 0)
             mask_draw = ImageDraw.Draw(mask)
             mask_draw.ellipse([0, 0, w - 1, h - 1], fill=255)
