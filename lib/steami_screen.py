@@ -14,13 +14,19 @@ Works with any backend that implements the display interface:
 
 import math
 
-# --- Color constants (SSD1327 grayscale 0-15) ---
+# --- Color constants (RGB tuples) ---
+# Grays map to exact SSD1327 levels: gray4 * 17 gives R=G=B
+BLACK = (0, 0, 0)
+DARK  = (102, 102, 102)   # gray4=6
+GRAY  = (153, 153, 153)   # gray4=9
+LIGHT = (187, 187, 187)   # gray4=11
+WHITE = (255, 255, 255)   # gray4=15
 
-BLACK = 0
-DARK = 6
-GRAY = 9
-LIGHT = 11
-WHITE = 15
+# Accent colors (used on color displays, degrade gracefully to gray on SSD1327)
+GREEN  = (119, 255, 119)
+RED    = (255, 85, 85)
+BLUE   = (85, 85, 255)
+YELLOW = (255, 255, 85)
 
 # --- Cardinal position names ---
 
@@ -77,7 +83,8 @@ class Screen:
         tw = text_len * self.CHAR_W * scale  # total text pixel width
 
         # Margins adapted to circular screen
-        margin_ns = self._safe_margin(tw, ch)     # N/S: depends on text width
+        # Floor at ch*2+4 ensures titles stay at a consistent height
+        margin_ns = self._safe_margin(tw, ch * 2 + 4)  # N/S
         margin_ew = ch + 4                         # E/W: fixed side margin
 
         positions = {
@@ -100,7 +107,8 @@ class Screen:
         x, y = self._resolve("N", len(text))
         self._d.text(text, x, y, color)
 
-    def value(self, val, unit=None, at="CENTER", label=None, color=WHITE, scale=2):
+    def value(self, val, unit=None, at="CENTER", label=None,
+             color=WHITE, scale=2, y_offset=0):
         """Draw a large value, optionally with unit below and label above."""
         text = str(val)
         cx, cy = self.center
@@ -118,6 +126,7 @@ class Screen:
                 y = cy - block_h // 2  # visual center biased up
             else:
                 y = cy - char_h // 2
+            y += y_offset
         elif at == "W":
             x = self.width // 4 - tw // 2
             y = cy - char_h // 2
@@ -349,19 +358,21 @@ class Screen:
         self._d.line(x, y, x, y + h - 1, c)
 
     def _fill_rect(self, x, y, w, h, c):
-        if hasattr(self._d, 'framebuf'):
-            self._d.framebuf.fill_rect(x, y, w, h, c)
-        elif hasattr(self._d, 'fill_rect'):
+        if hasattr(self._d, 'fill_rect'):
             self._d.fill_rect(x, y, w, h, c)
+        elif hasattr(self._d, 'framebuf'):
+            from steami_colors import rgb_to_gray4
+            self._d.framebuf.fill_rect(x, y, w, h, rgb_to_gray4(c))
         else:
             for row in range(h):
                 self._d.line(x, y + row, x + w - 1, y + row, c)
 
     def _rect(self, x, y, w, h, c):
-        if hasattr(self._d, 'framebuf'):
-            self._d.framebuf.rect(x, y, w, h, c)
-        elif hasattr(self._d, 'rect'):
+        if hasattr(self._d, 'rect'):
             self._d.rect(x, y, w, h, c)
+        elif hasattr(self._d, 'framebuf'):
+            from steami_colors import rgb_to_gray4
+            self._d.framebuf.rect(x, y, w, h, rgb_to_gray4(c))
         else:
             self._hline(x, y, w, c)
             self._hline(x, y + h - 1, w, c)

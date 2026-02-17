@@ -1,8 +1,8 @@
 """
 Pillow-based simulator backend for steami_screen.
 
-Mimics the SSD1327 display interface so that Screen works identically.
-Renders to a grayscale PIL Image and can save to PNG with circular mask.
+Mimics the display interface so that Screen works identically.
+Renders to an RGB PIL Image and can save to PNG with circular mask.
 """
 
 from PIL import Image, ImageDraw, ImageFont
@@ -35,9 +35,18 @@ def _load_font(size=8, bold=False):
     return ImageFont.load_default()
 
 
-def _color_to_gray(c):
-    """Convert SSD1327 color (0-15) to 8-bit grayscale (0-255)."""
-    return min(255, max(0, int(c) * 17))
+def _color_to_rgb(c):
+    """Convert a color to an RGB tuple for Pillow.
+
+    Accepts:
+      - (r, g, b) tuple: returned as-is
+      - int 0-15: legacy grayscale, expanded to (v, v, v)
+    """
+    if isinstance(c, (tuple, list)):
+        return tuple(c[:3])
+    # Legacy int grayscale
+    v = min(255, max(0, int(c) * 17))
+    return (v, v, v)
 
 
 class SimBackend:
@@ -49,7 +58,7 @@ class SimBackend:
         self.scale = scale  # render at higher res for nicer output
         sw = width * scale
         sh = height * scale
-        self._img = Image.new("L", (sw, sh), 0)
+        self._img = Image.new("RGB", (sw, sh), (0, 0, 0))
         self._draw = ImageDraw.Draw(self._img)
         # MicroPython framebuf: 8x8 bitmap, square glyphs.
         # TrueType monospace: taller than wide, thicker strokes.
@@ -58,6 +67,7 @@ class SimBackend:
         self._font = _load_font(base)
         # Value text needs to be proportionally bigger to match
         # SVG mockups (value ~18% of screen vs title ~6%)
+        self._font_small = _load_font(int(base * 0.85))
         self._font_medium = _load_font(int(base * 1.3))
         self._font_large = {
             2: _load_font(int(base * 2.8), bold=True),
@@ -65,14 +75,14 @@ class SimBackend:
         }
 
     def fill(self, color):
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         self._draw.rectangle(
             [0, 0, self._img.width - 1, self._img.height - 1], fill=c
         )
 
     def pixel(self, x, y, color):
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         if s == 1:
             self._draw.point((x, y), fill=c)
         else:
@@ -87,14 +97,21 @@ class SimBackend:
 
     def text(self, string, x, y, color):
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         ax = self._centered_x(string, x, self._font, 8)
         self._draw.text((ax, y * s), string, fill=c, font=self._font)
+
+    def draw_small_text(self, string, x, y, color):
+        """Draw text slightly smaller than base (for subtitles, info lines)."""
+        s = self.scale
+        c = _color_to_rgb(color)
+        ax = self._centered_x(string, x, self._font_small, 8)
+        self._draw.text((ax, y * s), string, fill=c, font=self._font_small)
 
     def draw_medium_text(self, string, x, y, color):
         """Draw text slightly larger than base (for units, labels)."""
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         ax = self._centered_x(string, x, self._font_medium, 8)
         self._draw.text((ax, y * s), string, fill=c,
                         font=self._font_medium)
@@ -102,28 +119,28 @@ class SimBackend:
     def draw_scaled_text(self, string, x, y, color, text_scale):
         """Draw text at a larger scale using a bigger font."""
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         font = self._font_large.get(text_scale, self._font)
         ax = self._centered_x(string, x, font, 8 * text_scale)
         self._draw.text((ax, y * s), string, fill=c, font=font)
 
     def line(self, x1, y1, x2, y2, color):
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         self._draw.line(
             [(x1 * s, y1 * s), (x2 * s, y2 * s)], fill=c, width=s
         )
 
     def fill_rect(self, x, y, w, h, color):
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         self._draw.rectangle(
             [x * s, y * s, (x + w) * s - 1, (y + h) * s - 1], fill=c
         )
 
     def rect(self, x, y, w, h, color):
         s = self.scale
-        c = _color_to_gray(color)
+        c = _color_to_rgb(color)
         self._draw.rectangle(
             [x * s, y * s, (x + w) * s - 1, (y + h) * s - 1], outline=c
         )
@@ -150,12 +167,12 @@ class SimBackend:
             mask_draw.ellipse([0, 0, w - 1, h - 1], fill=255)
 
             # Apply mask: black outside the circle
-            bg = Image.new("L", (w, h), 0)
+            bg = Image.new("RGB", (w, h), (0, 0, 0))
             result = Image.composite(result, bg, mask)
 
             if border:
                 draw = ImageDraw.Draw(result)
-                border_color = _color_to_gray(5)
+                border_color = _color_to_rgb(5)
                 s = self.scale
                 draw.ellipse(
                     [s, s, w - s - 1, h - s - 1],
