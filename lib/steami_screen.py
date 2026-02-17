@@ -116,23 +116,24 @@ class Screen:
         char_h = self.CHAR_H * scale
         tw = len(text) * char_w
 
+        # Compute vertical position: center the value+unit block
+        if unit:
+            gap = char_h // 3
+            unit_h = self.CHAR_H
+            block_h = char_h + gap + unit_h
+            vy = cy - block_h // 2
+        else:
+            vy = cy - char_h // 2
+
         if at == "CENTER":
             x = cx - tw // 2
-            if unit:
-                # Center the full block (value + gap + unit) vertically
-                gap = char_h // 2
-                unit_h = self.CHAR_H
-                block_h = char_h + gap + unit_h
-                y = cy - block_h // 2  # visual center biased up
-            else:
-                y = cy - char_h // 2
-            y += y_offset
+            y = vy + y_offset
         elif at == "W":
             x = self.width // 4 - tw // 2
-            y = cy - char_h // 2
+            y = vy
         elif at == "E":
             x = 3 * self.width // 4 - tw // 2
-            y = cy - char_h // 2
+            y = vy
         else:
             x, y = self._resolve(at, len(text), scale)
 
@@ -146,7 +147,7 @@ class Screen:
 
         # Optional unit below (medium font if backend supports it)
         if unit:
-            unit_y = y + char_h + char_h // 2
+            unit_y = y + char_h + char_h // 3
             ux = x + tw // 2 - len(unit) * self.CHAR_W // 2
             if hasattr(self._d, 'draw_medium_text'):
                 self._d.draw_medium_text(unit, ux, unit_y, LIGHT)
