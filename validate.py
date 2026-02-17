@@ -92,25 +92,28 @@ def rasterize_svg(tutorial_name, target_size):
 def compute_similarity(img_path_a, img_path_b):
     """Compute a normalized similarity score between two images.
 
-    Uses a histogram-based comparison (no scikit-image dependency).
+    Uses pixel-level comparison in RGB (no scikit-image dependency).
     Returns a float between 0.0 (totally different) and 1.0 (identical).
     """
     from PIL import Image
 
-    img_a = Image.open(img_path_a).convert("L")
-    img_b = Image.open(img_path_b).convert("L")
+    img_a = Image.open(img_path_a).convert("RGB")
+    img_b = Image.open(img_path_b).convert("RGB")
 
     # Resize to same dimensions
     size = (min(img_a.width, img_b.width), min(img_a.height, img_b.height))
     img_a = img_a.resize(size)
     img_b = img_b.resize(size)
 
-    # Pixel-level comparison: mean absolute error normalized to [0,1]
-    pixels_a = list(img_a.getdata())
+    # Pixel-level comparison: mean absolute error over all channels
+    pixels_a = list(img_a.getdata())  # list of (r, g, b) tuples
     pixels_b = list(img_b.getdata())
 
-    total_diff = sum(abs(a - b) for a, b in zip(pixels_a, pixels_b))
-    max_diff = 255 * len(pixels_a)
+    total_diff = sum(
+        abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
+        for a, b in zip(pixels_a, pixels_b)
+    )
+    max_diff = 255 * 3 * len(pixels_a)
 
     similarity = 1.0 - (total_diff / max_diff)
     return similarity
@@ -123,17 +126,17 @@ def structural_similarity(img_path_a, img_path_b):
         import numpy as np
         from skimage.metrics import structural_similarity as ssim
 
-        img_a = np.array(Image.open(img_path_a).convert("L"))
-        img_b = np.array(Image.open(img_path_b).convert("L"))
+        img_a = np.array(Image.open(img_path_a).convert("RGB"))
+        img_b = np.array(Image.open(img_path_b).convert("RGB"))
 
         # Resize if needed
         if img_a.shape != img_b.shape:
             min_h = min(img_a.shape[0], img_b.shape[0])
             min_w = min(img_a.shape[1], img_b.shape[1])
-            img_a = np.array(Image.open(img_path_a).convert("L").resize((min_w, min_h)))
-            img_b = np.array(Image.open(img_path_b).convert("L").resize((min_w, min_h)))
+            img_a = np.array(Image.open(img_path_a).convert("RGB").resize((min_w, min_h)))
+            img_b = np.array(Image.open(img_path_b).convert("RGB").resize((min_w, min_h)))
 
-        score = ssim(img_a, img_b)
+        score = ssim(img_a, img_b, channel_axis=-1)
         return score, "SSIM"
     except ImportError:
         score = compute_similarity(img_path_a, img_path_b)
@@ -141,12 +144,11 @@ def structural_similarity(img_path_a, img_path_b):
 
 
 def generate_diff_image(sim_png, ref_png, tutorial_name):
-    """Generate an amplified difference image between sim and ref."""
+    """Generate an amplified difference image between sim and ref (RGB)."""
     from PIL import Image
-    import struct
 
-    img_a = Image.open(sim_png).convert("L")
-    img_b = Image.open(ref_png).convert("L")
+    img_a = Image.open(sim_png).convert("RGB")
+    img_b = Image.open(ref_png).convert("RGB")
 
     size = (min(img_a.width, img_b.width), min(img_a.height, img_b.height))
     img_a = img_a.resize(size)
@@ -155,9 +157,16 @@ def generate_diff_image(sim_png, ref_png, tutorial_name):
     pixels_a = list(img_a.getdata())
     pixels_b = list(img_b.getdata())
 
-    # Amplify differences x5 for visibility
-    diff_pixels = [min(255, abs(a - b) * 5) for a, b in zip(pixels_a, pixels_b)]
-    diff_img = Image.new("L", size)
+    # Amplify differences x5 for visibility, per channel
+    diff_pixels = [
+        (
+            min(255, abs(a[0] - b[0]) * 5),
+            min(255, abs(a[1] - b[1]) * 5),
+            min(255, abs(a[2] - b[2]) * 5),
+        )
+        for a, b in zip(pixels_a, pixels_b)
+    ]
+    diff_img = Image.new("RGB", size)
     diff_img.putdata(diff_pixels)
 
     diff_path = os.path.join(MOCKUPS_DIR, f"{tutorial_name}_diff.png")
