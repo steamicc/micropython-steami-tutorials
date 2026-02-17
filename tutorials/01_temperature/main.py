@@ -13,7 +13,8 @@ spi = SPI(1)
 dc = Pin("DATA_COMMAND_DISPLAY")
 res = Pin("RST_DISPLAY")
 cs = Pin("CS_DISPLAY")
-display = ssd1327.WS_OLED_128X128_SPI(spi, dc, res, cs)
+from steami_ssd1327 import SSD1327Display
+display = SSD1327Display(ssd1327.WS_OLED_128X128_SPI(spi, dc, res, cs))
 
 # --- High-level screen API ---
 import sys
