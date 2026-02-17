@@ -140,6 +140,31 @@ def structural_similarity(img_path_a, img_path_b):
         return score, "pixel-MAE"
 
 
+def generate_diff_image(sim_png, ref_png, tutorial_name):
+    """Generate an amplified difference image between sim and ref."""
+    from PIL import Image
+    import struct
+
+    img_a = Image.open(sim_png).convert("L")
+    img_b = Image.open(ref_png).convert("L")
+
+    size = (min(img_a.width, img_b.width), min(img_a.height, img_b.height))
+    img_a = img_a.resize(size)
+    img_b = img_b.resize(size)
+
+    pixels_a = list(img_a.getdata())
+    pixels_b = list(img_b.getdata())
+
+    # Amplify differences x5 for visibility
+    diff_pixels = [min(255, abs(a - b) * 5) for a, b in zip(pixels_a, pixels_b)]
+    diff_img = Image.new("L", size)
+    diff_img.putdata(diff_pixels)
+
+    diff_path = os.path.join(MOCKUPS_DIR, f"{tutorial_name}_diff.png")
+    diff_img.save(diff_path)
+    return diff_path
+
+
 def validate_tutorial(tutorial_name, thresholds):
     """Validate a single tutorial. Returns True if PASS.
 
@@ -172,6 +197,10 @@ def validate_tutorial(tutorial_name, thresholds):
     threshold = thresholds.get(method, THRESHOLD_PIXEL)
     status = "PASS" if score >= threshold else "FAIL"
     print(f"  Score: {score:.4f} ({method}) — threshold: {threshold} — {status}")
+
+    # Step 4: Generate diff image
+    diff_path = generate_diff_image(sim_png, ref_png, tutorial_name)
+    print(f"  Diff image: {diff_path}")
 
     return score >= threshold
 

@@ -6,6 +6,7 @@ __pycache__/
 # Generated images (simulateur + rasterisation SVG)
 docs/mockups/*_sim.png
 docs/mockups/*_ref.png
+docs/mockups/*_diff.png
 
 # IDE
 .vscode/

@@ -17,11 +17,21 @@ _FONT_PATHS = [
     "/usr/share/fonts/truetype/freefont/FreeMono.ttf",
 ]
 
+_FONT_BOLD_PATHS = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf",
+    "/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf",
+]
 
-def _load_font(size=8):
-    for path in _FONT_PATHS:
+
+def _load_font(size=8, bold=False):
+    paths = _FONT_BOLD_PATHS if bold else _FONT_PATHS
+    for path in paths:
         if os.path.exists(path):
             return ImageFont.truetype(path, size)
+    # Fallback: try regular paths for bold, or default
+    if bold:
+        return _load_font(size, bold=False)
     return ImageFont.load_default()
 
 
@@ -50,8 +60,8 @@ class SimBackend:
         # SVG mockups (value ~18% of screen vs title ~6%)
         self._font_medium = _load_font(int(base * 1.3))
         self._font_large = {
-            2: _load_font(int(base * 2.8)),
-            3: _load_font(int(base * 4)),
+            2: _load_font(int(base * 2.8), bold=True),
+            3: _load_font(int(base * 4), bold=True),
         }
 
     def fill(self, color):

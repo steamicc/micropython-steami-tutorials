@@ -115,7 +115,7 @@ class Screen:
                 gap = char_h // 2
                 unit_h = self.CHAR_H
                 block_h = char_h + gap + unit_h
-                y = cy - block_h // 3  # visual center biased up
+                y = cy - block_h // 2  # visual center biased up
             else:
                 y = cy - char_h // 2
         elif at == "W":
@@ -147,7 +147,7 @@ class Screen:
     def subtitle(self, text, color=DARK):
         """Draw subtitle text at the bottom (S)."""
         x, y = self._resolve("S", len(text))
-        self._d.text(text, x, y + self.CHAR_H // 2, color)
+        self._d.text(text, x, y + self.CHAR_H, color)
 
     def bar(self, val, max_val=100, y_offset=0, color=LIGHT):
         """Draw a horizontal progress bar below center."""
