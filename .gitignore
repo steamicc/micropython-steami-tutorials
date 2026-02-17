@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated images (simulateur + rasterisation SVG)
+docs/mockups/*_sim.png
+docs/mockups/*_ref.png
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
