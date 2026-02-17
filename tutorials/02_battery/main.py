@@ -18,7 +18,7 @@ display = SSD1327Display(ssd1327.WS_OLED_128X128_SPI(spi, dc, res, cs))
 # --- High-level screen API ---
 import sys
 sys.path.append("/lib")
-from steami_screen import Screen, WHITE, GRAY, LIGHT, DARK, GREEN
+from steami_screen import Screen, GREEN
 
 screen = Screen(display)
 
@@ -37,11 +37,7 @@ while True:
     screen.title("Battery")
     screen.value("{}%".format(pct), y_offset=-15)
     screen.bar(pct, y_offset=-12, color=GREEN)
-    # Two info lines (Level 3 pixel API)
-    cx = screen.width // 2
-    line1 = "{} mV".format(mv)
-    display.text(line1, cx - len(line1) * 4, 96, DARK)
-    display.text("BQ27441", cx - 28, 107, DARK)
+    screen.subtitle("{} mV".format(mv), "BQ27441")
     screen.show()
 
     time.sleep(1)

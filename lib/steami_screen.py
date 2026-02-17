@@ -153,10 +153,26 @@ class Screen:
             else:
                 self._d.text(unit, ux, unit_y, LIGHT)
 
-    def subtitle(self, text, color=DARK):
-        """Draw subtitle text at the bottom (S)."""
-        x, y = self._resolve("S", len(text))
-        self._d.text(text, x, y + self.CHAR_H, color)
+    def subtitle(self, *lines, color=DARK):
+        """Draw subtitle text at the bottom (S). Accepts multiple lines."""
+        if not lines:
+            return
+        max_len = max(len(line) for line in lines)
+        _, base_y = self._resolve("S", max_len)
+        line_h = self.CHAR_H + 3
+        n = len(lines)
+
+        if n == 1:
+            start_y = base_y + self.CHAR_H
+        else:
+            block_h = (n - 1) * line_h
+            start_y = base_y - block_h // 2
+
+        draw = getattr(self._d, 'draw_small_text', self._d.text)
+        for i, line in enumerate(lines):
+            x, _ = self._resolve("S", len(line))
+            y = start_y + i * line_h
+            draw(line, x, y, color)
 
     def bar(self, val, max_val=100, y_offset=0, color=LIGHT):
         """Draw a horizontal progress bar below center."""
