@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-08">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Screen border -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-08)">
+    <!-- Compass rose circles -->
+    <circle cx="100" cy="100" r="72" fill="none" stroke="#444" stroke-width="1"/>
+    <circle cx="100" cy="100" r="50" fill="none" stroke="#333" stroke-width="0.5"/>
+    <!-- Cardinal tick marks and labels -->
+    <!-- N -->
+    <line x1="100" y1="26" x2="100" y2="36" stroke="#aaa" stroke-width="2"/>
+    <text x="100" y="21" text-anchor="middle" fill="#fff" font-family="monospace" font-size="13" font-weight="bold">N</text>
+    <!-- S -->
+    <line x1="100" y1="164" x2="100" y2="174" stroke="#666" stroke-width="2"/>
+    <text x="100" y="187" text-anchor="middle" fill="#666" font-family="monospace" font-size="11">S</text>
+    <!-- E -->
+    <line x1="164" y1="100" x2="174" y2="100" stroke="#666" stroke-width="2"/>
+    <text x="185" y="104" text-anchor="middle" fill="#666" font-family="monospace" font-size="11">E</text>
+    <!-- W -->
+    <line x1="26" y1="100" x2="36" y2="100" stroke="#666" stroke-width="2"/>
+    <text x="15" y="104" text-anchor="middle" fill="#666" font-family="monospace" font-size="11">W</text>
+    <!-- Minor tick marks (NE, NW, SE, SW) -->
+    <line x1="149" y1="51" x2="156" y2="44" stroke="#444" stroke-width="1"/>
+    <line x1="51" y1="51" x2="44" y2="44" stroke="#444" stroke-width="1"/>
+    <line x1="149" y1="149" x2="156" y2="156" stroke="#444" stroke-width="1"/>
+    <line x1="51" y1="149" x2="44" y2="156" stroke="#444" stroke-width="1"/>
+    <!-- Needle pointing North (0°) — symmetric diamond shape -->
+    <!-- North half (bright) -->
+    <polygon points="100,35 96,100 104,100" fill="#ccc"/>
+    <!-- South half (dark) -->
+    <polygon points="100,165 96,100 104,100" fill="#555"/>
+    <!-- Center pivot -->
+    <circle cx="100" cy="100" r="5" fill="#888"/>
+    <circle cx="100" cy="100" r="2" fill="#fff"/>
+    <!-- Heading display overlay -->
+    <rect x="75" y="120" width="50" height="20" rx="3" fill="rgba(0,0,0,0.85)"/>
+    <text x="100" y="135" text-anchor="middle" fill="#fff" font-family="monospace" font-size="14" font-weight="bold">0°</text>
+  </g>
+</svg>

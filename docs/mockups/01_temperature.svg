@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-01">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Background circle (round screen) -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <!-- Content clipped to circle -->
+  <g clip-path="url(#circle-clip-01)">
+    <!-- Title at N position -->
+    <text x="100" y="42" text-anchor="middle" fill="#999" font-family="monospace" font-size="13">Temperature</text>
+    <!-- Value at CENTER - large -->
+    <text x="100" y="108" text-anchor="middle" fill="#fff" font-family="monospace" font-size="36" font-weight="bold">23.5</text>
+    <!-- Unit -->
+    <text x="100" y="130" text-anchor="middle" fill="#bbb" font-family="monospace" font-size="16">°C</text>
+    <!-- Subtitle at S position -->
+    <text x="100" y="168" text-anchor="middle" fill="#666" font-family="monospace" font-size="11">HTS221 sensor</text>
+  </g>
+</svg>

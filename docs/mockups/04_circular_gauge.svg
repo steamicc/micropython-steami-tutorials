@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-04">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Screen border -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-04)">
+    <!-- Title (raised higher to avoid gauge) -->
+    <text x="100" y="27" text-anchor="middle" fill="#999" font-family="monospace" font-size="13">Distance</text>
+    <!-- Gauge arcs centered at (100,100), r=62 -->
+    <!-- Circumference = 2*pi*62 = 389.56 ; 270° = 292.17 ; 90° gap = 97.39 -->
+    <!-- Background arc: 270° opening at bottom -->
+    <circle cx="100" cy="100" r="62" fill="none" stroke="#222" stroke-width="10"
+            stroke-dasharray="292.17 97.39"
+            transform="rotate(135, 100, 100)"
+            stroke-linecap="round"/>
+    <!-- Filled arc: 342/500 = 68.4% of 292.17 = 199.84 -->
+    <circle cx="100" cy="100" r="62" fill="none" stroke="#aaa" stroke-width="10"
+            stroke-dasharray="199.84 189.72"
+            transform="rotate(135, 100, 100)"
+            stroke-linecap="round"/>
+    <!-- Value in center -->
+    <text x="100" y="105" text-anchor="middle" fill="#fff" font-family="monospace" font-size="28" font-weight="bold">342</text>
+    <text x="100" y="123" text-anchor="middle" fill="#aaa" font-family="monospace" font-size="12">mm</text>
+    <!-- Scale labels at arc endpoints -->
+    <text x="48" y="172" text-anchor="middle" fill="#555" font-family="monospace" font-size="9">0</text>
+    <text x="152" y="172" text-anchor="middle" fill="#555" font-family="monospace" font-size="9">500</text>
+    <!-- Subtitle -->
+    <text x="100" y="188" text-anchor="middle" fill="#666" font-family="monospace" font-size="10">VL53L1X ToF</text>
+  </g>
+</svg>

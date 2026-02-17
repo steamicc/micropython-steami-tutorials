@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-05">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Screen border -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-05)">
+    <!-- Title and current value -->
+    <text x="100" y="35" text-anchor="middle" fill="#999" font-family="monospace" font-size="12">Light (lux)</text>
+    <text x="100" y="55" text-anchor="middle" fill="#fff" font-family="monospace" font-size="18" font-weight="bold">847</text>
+    <!-- Y axis -->
+    <line x1="30" y1="65" x2="30" y2="165" stroke="#444" stroke-width="1"/>
+    <text x="26" y="72" text-anchor="end" fill="#555" font-family="monospace" font-size="8">1k</text>
+    <text x="26" y="118" text-anchor="end" fill="#555" font-family="monospace" font-size="8">500</text>
+    <text x="26" y="164" text-anchor="end" fill="#555" font-family="monospace" font-size="8">0</text>
+    <!-- X axis -->
+    <line x1="30" y1="165" x2="175" y2="165" stroke="#444" stroke-width="1"/>
+    <!-- Grid lines -->
+    <line x1="30" y1="115" x2="175" y2="115" stroke="#222" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <!-- Scrolling data line (simulated) -->
+    <polyline fill="none" stroke="#aaa" stroke-width="2"
+              points="32,130 40,125 48,118 56,122 64,110 72,95 80,88 88,92 96,85 104,78 112,82 120,75 128,80 136,72 144,78 152,75 160,82 168,78"/>
+    <!-- Data area fill -->
+    <polyline fill="rgba(170,170,170,0.15)" stroke="none"
+              points="32,165 32,130 40,125 48,118 56,122 64,110 72,95 80,88 88,92 96,85 104,78 112,82 120,75 128,80 136,72 144,78 152,75 160,82 168,78 168,165"/>
+    <!-- Subtitle -->
+    <text x="100" y="182" text-anchor="middle" fill="#666" font-family="monospace" font-size="9">APDS9960 | 30s window</text>
+  </g>
+</svg>
