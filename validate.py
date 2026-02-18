@@ -29,7 +29,7 @@ TUTORIALS_DIR = os.path.join(ROOT, "tutorials")
 
 # Default similarity thresholds per metric
 # SSIM is stricter (compares local structure), pixel-MAE is more forgiving
-THRESHOLD_SSIM = 0.80
+THRESHOLD_SSIM = 0.85
 THRESHOLD_PIXEL = 0.95
 
 
