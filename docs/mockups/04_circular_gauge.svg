@@ -1,34 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <defs>
     <clipPath id="circle-clip-04">
-      <circle cx="100" cy="100" r="95"/>
+      <circle cx="100" cy="100" r="99"/>
     </clipPath>
   </defs>
+  <!-- Screen background -->
+  <circle cx="100" cy="100" r="100" fill="#000"/>
+  <!-- Gauge arcs: sim bbox r=60, width=7 inward → SVG path r=88, sw=11 -->
+  <!-- C=2*pi*88=553.0 ; 270°=414.73 ; 90°gap=138.23 -->
+  <!-- Background arc: 270° opening at bottom -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#666" stroke-width="11"
+          stroke-dasharray="414.73 138.23"
+          transform="rotate(135, 100, 100)"/>
+  <!-- Filled arc: 342/500 = 68.4% of 414.73 = 283.68 -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#bbb" stroke-width="11"
+          stroke-dasharray="283.68 269.32"
+          transform="rotate(135, 100, 100)"/>
   <!-- Screen border -->
   <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
-  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <!-- Text content -->
   <g clip-path="url(#circle-clip-04)">
-    <!-- Title (raised higher to avoid gauge) -->
-    <text x="100" y="27" text-anchor="middle" fill="#999" font-family="monospace" font-size="13">Distance</text>
-    <!-- Gauge arcs centered at (100,100), r=62 -->
-    <!-- Circumference = 2*pi*62 = 389.56 ; 270° = 292.17 ; 90° gap = 97.39 -->
-    <!-- Background arc: 270° opening at bottom -->
-    <circle cx="100" cy="100" r="62" fill="none" stroke="#222" stroke-width="10"
-            stroke-dasharray="292.17 97.39"
-            transform="rotate(135, 100, 100)"
-            stroke-linecap="round"/>
-    <!-- Filled arc: 342/500 = 68.4% of 292.17 = 199.84 -->
-    <circle cx="100" cy="100" r="62" fill="none" stroke="#aaa" stroke-width="10"
-            stroke-dasharray="199.84 189.72"
-            transform="rotate(135, 100, 100)"
-            stroke-linecap="round"/>
+    <!-- Title -->
+    <text x="100" y="44" text-anchor="middle" fill="#999" font-family="monospace" font-size="13">Distance</text>
     <!-- Value in center -->
-    <text x="100" y="105" text-anchor="middle" fill="#fff" font-family="monospace" font-size="28" font-weight="bold">342</text>
-    <text x="100" y="123" text-anchor="middle" fill="#aaa" font-family="monospace" font-size="12">mm</text>
+    <text x="100" y="109" text-anchor="middle" fill="#fff" font-family="monospace" font-size="32" font-weight="bold">342</text>
+    <!-- Unit below value -->
+    <text x="100" y="130" text-anchor="middle" fill="#bbb" font-family="monospace" font-size="17">mm</text>
     <!-- Scale labels at arc endpoints -->
-    <text x="48" y="172" text-anchor="middle" fill="#555" font-family="monospace" font-size="9">0</text>
-    <text x="152" y="172" text-anchor="middle" fill="#555" font-family="monospace" font-size="9">500</text>
+    <text x="47" y="147" text-anchor="middle" fill="#999" font-family="monospace" font-size="9">0</text>
+    <text x="153" y="147" text-anchor="middle" fill="#999" font-family="monospace" font-size="9">500</text>
     <!-- Subtitle -->
-    <text x="100" y="188" text-anchor="middle" fill="#666" font-family="monospace" font-size="10">VL53L1X ToF</text>
+    <text x="100" y="179" text-anchor="middle" fill="#666" font-family="monospace" font-size="11">VL53L1X ToF</text>
   </g>
 </svg>
