@@ -248,16 +248,56 @@ class Screen:
         draw_sm(max_t, rx, ry, GRAY)
 
     def graph(self, data, min_val=0, max_val=100, color=LIGHT):
-        """Draw a scrolling line graph in the lower portion."""
-        cx, cy = self.center
-        margin = 20
-        gx = margin + 10
-        gy = cy - 5
-        gw = self.width - margin * 2 - 10
-        gh = self.height - gy - margin
+        """Draw a scrolling line graph with the current value above.
 
-        # Y axis
-        self._vline(gx, gy, gh, DARK)
+        The last data point is displayed as a large value above the
+        graph area.  Call title() before graph() for proper layout.
+        """
+        cx, cy = self.center
+        margin = 15
+        gx = margin + 6
+        gy = 38
+        gw = self.width - margin - gx
+        gh = 52
+
+        # Current value just below title area (fixed position)
+        if data:
+            text = str(int(data[-1]))
+            draw_fn = getattr(self._d, 'draw_medium_text',
+                              self._d.text)
+            tw = len(text) * self.CHAR_W
+            vx = cx - tw // 2
+            vy = 31
+            draw_fn(text, vx, vy, WHITE)
+
+        # Y-axis labels (max, mid, min)
+        def _fmt(v):
+            if v >= 1000 and v % 1000 == 0:
+                return str(int(v // 1000)) + "k"
+            return str(int(v))
+
+        draw_sm = getattr(self._d, 'draw_small_text', self._d.text)
+        mid_val = (min_val + max_val) / 2
+        for val, yp in [(max_val, gy),
+                        (mid_val, gy + gh // 2),
+                        (min_val, gy + gh)]:
+            label = _fmt(val)
+            cw = int(self.CHAR_W * 0.85)
+            lx = gx - len(label) * cw - 1
+            ly = yp - self.CHAR_H // 2
+            draw_sm(label, lx, ly, DARK)
+
+        # Dashed grid line at midpoint
+        mid_y = gy + gh // 2
+        dash, gap = 3, 3
+        x = gx + 1
+        while x < gx + gw:
+            x2 = min(x + dash - 1, gx + gw - 1)
+            self._d.line(x, mid_y, x2, mid_y, (51, 51, 51))
+            x += dash + gap
+
+        # Y axis (extend +1 to meet X axis corner)
+        self._vline(gx, gy, gh + 1, DARK)
         # X axis
         self._hline(gx, gy + gh, gw, DARK)
 
