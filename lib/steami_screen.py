@@ -359,8 +359,8 @@ class Screen:
 
         # Cardinal labels
         for label, angle in (("N", 0), ("E", 90), ("S", 180), ("W", 270)):
-            lx = cx + int((r + 8) * math.sin(math.radians(angle)))
-            ly = cy - int((r + 8) * math.cos(math.radians(angle)))
+            lx = cx + int((r + 5) * math.sin(math.radians(angle)))
+            ly = cy - int((r + 5) * math.cos(math.radians(angle)))
             c = WHITE if label == "N" else GRAY
             self._d.text(label, lx - self.CHAR_W // 2, ly - self.CHAR_H // 2, c)
 
