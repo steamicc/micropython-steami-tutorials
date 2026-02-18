@@ -191,36 +191,61 @@ class Screen:
             self._fill_rect(bx, by, fill_w, bar_h, color)
 
     def gauge(self, val, min_val=0, max_val=100, unit=None, color=LIGHT):
-        """Draw a circular arc gauge (270 deg, gap at bottom)."""
+        """Draw a circular arc gauge (270 deg, gap at bottom).
+
+        The arc is drawn close to the screen border.  Call gauge() before
+        title() so that text layers on top of the arc.
+        """
         cx, cy = self.center
-        r = self.radius - 8
+        arc_w = max(5, self.radius // 9)
+        r = self.radius - arc_w // 2 - 1
         start_angle = 135
         sweep = 270
         ratio = (val - min_val) / (max_val - min_val)
         ratio = max(0.0, min(1.0, ratio))
 
         # Background arc
-        self._draw_arc(cx, cy, r, start_angle, sweep, DARK)
+        self._draw_arc(cx, cy, r, start_angle, sweep, DARK, arc_w)
         # Filled arc
         if ratio > 0:
-            self._draw_arc(cx, cy, r, start_angle, int(sweep * ratio), color)
+            self._draw_arc(cx, cy, r, start_angle, int(sweep * ratio),
+                           color, arc_w)
 
-        # Value in center
+        # Value + unit centered as a block
         text = str(val)
-        self._draw_scaled_text(
-            text,
-            cx - len(text) * self.CHAR_W,
-            cy - self.CHAR_H,
-            WHITE, 2
-        )
-        # Unit below value
+        char_h = self.CHAR_H * 2  # scale=2
+        tw = len(text) * self.CHAR_W * 2
         if unit:
-            self._d.text(
-                unit,
-                cx - len(unit) * self.CHAR_W // 2,
-                cy + self.CHAR_H + 2,
-                LIGHT
-            )
+            gap = char_h // 3
+            unit_h = self.CHAR_H
+            block_h = char_h + gap + unit_h
+            vy = cy - block_h // 2
+        else:
+            vy = cy - char_h // 2
+        vx = cx - tw // 2
+        self._draw_scaled_text(text, vx, vy, WHITE, 2)
+        if unit:
+            ux = cx - len(unit) * self.CHAR_W // 2
+            uy = vy + char_h + gap
+            if hasattr(self._d, 'draw_medium_text'):
+                self._d.draw_medium_text(unit, ux, uy, LIGHT)
+            else:
+                self._d.text(unit, ux, uy, LIGHT)
+
+        # Min/max labels at arc endpoints (slightly inward to stay visible)
+        min_t = str(int(min_val))
+        max_t = str(int(max_val))
+        r_label = r - arc_w - 10
+        # Nudge angles inward (toward bottom center) so labels stay on screen
+        angle_s = math.radians(start_angle + 8)
+        angle_e = math.radians(start_angle + sweep - 8)
+        lx = int(cx + r_label * math.cos(angle_s)) - len(min_t) * self.CHAR_W // 2
+        ly = int(cy + r_label * math.sin(angle_s))
+        rx = int(cx + r_label * math.cos(angle_e)) - len(max_t) * self.CHAR_W // 2
+        ry = int(cy + r_label * math.sin(angle_e))
+        draw_sm = getattr(self._d, 'draw_small_text', self._d.text)
+        draw_sm(min_t, lx, ly, GRAY)
+        draw_sm(max_t, rx, ry, GRAY)
 
     def graph(self, data, min_val=0, max_val=100, color=LIGHT):
         """Draw a scrolling line graph in the lower portion."""
@@ -422,12 +447,16 @@ class Screen:
         else:
             self._d.text(text, x, y, color)
 
-    def _draw_arc(self, cx, cy, r, start_deg, sweep_deg, color):
-        """Draw a thick arc (3px) using individual pixels."""
+    def _draw_arc(self, cx, cy, r, start_deg, sweep_deg, color, width=3):
+        """Draw a thick arc using individual pixels."""
+        if hasattr(self._d, 'draw_arc'):
+            self._d.draw_arc(cx, cy, r, start_deg, sweep_deg, color, width)
+            return
         steps = max(sweep_deg, 60)
+        half_w = width // 2
         for i in range(steps + 1):
             angle = math.radians(start_deg + i * sweep_deg / steps)
-            for dr in (-1, 0, 1):
+            for dr in range(-half_w, half_w + 1):
                 x = int(cx + (r + dr) * math.cos(angle))
                 y = int(cy + (r + dr) * math.sin(angle))
                 if 0 <= x < self.width and 0 <= y < self.height:

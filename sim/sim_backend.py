@@ -131,6 +131,17 @@ class SimBackend:
             [(x1 * s, y1 * s), (x2 * s, y2 * s)], fill=c, width=s
         )
 
+    def draw_arc(self, cx, cy, r, start_deg, sweep_deg, color, width=3):
+        """Draw a thick arc using Pillow's native arc rendering."""
+        s = self.scale
+        c = _color_to_rgb(color)
+        bbox = [
+            (cx - r) * s, (cy - r) * s,
+            (cx + r) * s, (cy + r) * s,
+        ]
+        end_deg = start_deg + sweep_deg
+        self._draw.arc(bbox, start_deg, end_deg, fill=c, width=width * s)
+
     def fill_rect(self, x, y, w, h, color):
         s = self.scale
         c = _color_to_rgb(color)
