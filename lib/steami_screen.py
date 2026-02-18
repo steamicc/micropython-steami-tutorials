@@ -7,7 +7,7 @@ Works with any backend that implements the display interface:
   - SimBackend (Pillow, for screenshots and validation)
 
 3-level API:
-  Level 1 — Widgets:  title(), value(), subtitle(), bar(), gauge(), compass()...
+  Level 1 — Widgets:  title(), value(), subtitle(), bar(), gauge(), face(), compass()...
   Level 2 — Cardinal: text("hello", at="NE"), line(...), circle(...)
   Level 3 — Pixels:   pixel(x, y, color) with screen.center, screen.radius
 """
@@ -27,6 +27,16 @@ GREEN  = (119, 255, 119)
 RED    = (255, 85, 85)
 BLUE   = (85, 85, 255)
 YELLOW = (255, 255, 85)
+
+# --- Pixel-art face bitmaps (8x8, MSB = left) ---
+FACES = {
+    "happy":     (0x00, 0x24, 0x24, 0x00, 0x00, 0x42, 0x3C, 0x00),
+    "sad":       (0x00, 0x24, 0x24, 0x00, 0x00, 0x3C, 0x42, 0x00),
+    "surprised": (0x00, 0x24, 0x24, 0x00, 0x18, 0x24, 0x24, 0x18),
+    "sleeping":  (0x00, 0x00, 0x66, 0x00, 0x00, 0x18, 0x18, 0x00),
+    "angry":     (0x00, 0x42, 0x24, 0x24, 0x00, 0x3C, 0x42, 0x00),
+    "love":      (0x00, 0x66, 0xFF, 0xFF, 0x7E, 0x3C, 0x18, 0x00),
+}
 
 # --- Cardinal position names ---
 
@@ -388,6 +398,39 @@ class Screen:
 
         # Center pivot
         self._fill_circle(cx, cy, 3, GRAY)
+
+    def face(self, expression, compact=False, color=LIGHT):
+        """Draw a pixel-art face expression (8x8 bitmap scaled up).
+
+        Args:
+            expression: Name ("happy", "sad", "surprised", "sleeping",
+                        "angry", "love") or tuple of 8 ints (custom).
+            compact: If True, smaller scale leaving room for title/subtitle.
+            color: Color for lit pixels.
+        """
+        if isinstance(expression, str):
+            bitmap = FACES.get(expression)
+            if bitmap is None:
+                return
+        else:
+            bitmap = expression
+
+        cx, cy = self.center
+        if compact:
+            scale = self.width // 16    # 8 on 128px
+            ox = cx - 4 * scale
+            oy = cy - 4 * scale - scale // 2
+        else:
+            scale = (self.width * 11) // 128  # 11 on 128px
+            ox = cx - 4 * scale
+            oy = cy - 4 * scale
+
+        for row in range(8):
+            byte = bitmap[row]
+            for col in range(8):
+                if byte & (0x80 >> col):
+                    self._fill_rect(ox + col * scale, oy + row * scale,
+                                    scale, scale, color)
 
     # --- Level 2: Cardinal text & shapes ---
 
