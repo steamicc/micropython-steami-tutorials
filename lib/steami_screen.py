@@ -399,6 +399,72 @@ class Screen:
         # Center pivot
         self._fill_circle(cx, cy, 3, GRAY)
 
+    def watch(self, hours, minutes, seconds=0, color=LIGHT):
+        """Draw an analog watch face."""
+        cx, cy = self.center
+        r = self.radius - 8
+
+        # Clock face circle
+        self._draw_circle(cx, cy, r, DARK)
+
+        # 12 hour tick marks
+        for i in range(12):
+            angle = i * 30
+            rad = math.radians(angle)
+            if i % 3 == 0:
+                inner = r - 8
+                c = LIGHT
+            else:
+                inner = r - 5
+                c = GRAY
+            x1 = cx + int(inner * math.sin(rad))
+            y1 = cy - int(inner * math.cos(rad))
+            x2 = cx + int(r * math.sin(rad))
+            y2 = cy - int(r * math.cos(rad))
+            self._line(x1, y1, x2, y2, c)
+
+        # Cardinal numbers: 12, 3, 6, 9
+        for num, angle in ((12, 0), (3, 90), (6, 180), (9, 270)):
+            text = str(num)
+            rad = math.radians(angle)
+            lx = cx + int((r - 15) * math.sin(rad))
+            ly = cy - int((r - 15) * math.cos(rad))
+            tw = len(text) * self.CHAR_W
+            self._d.text(text, lx - tw // 2, ly - self.CHAR_H // 2, WHITE)
+
+        # Hour hand (short, thick)
+        h_angle = (hours % 12 + minutes / 60) * 30
+        h_rad = math.radians(h_angle)
+        h_len = int(r * 0.50)
+        h_w = 3
+        hx = cx + int(h_len * math.sin(h_rad))
+        hy = cy - int(h_len * math.cos(h_rad))
+        px = int(h_w * math.cos(h_rad))
+        py = int(h_w * math.sin(h_rad))
+        self._fill_triangle(hx, hy, cx - px, cy - py, cx + px, cy + py, color)
+
+        # Minute hand (longer, thinner)
+        m_angle = (minutes + seconds / 60) * 6
+        m_rad = math.radians(m_angle)
+        m_len = int(r * 0.75)
+        m_w = 2
+        mx = cx + int(m_len * math.sin(m_rad))
+        my = cy - int(m_len * math.cos(m_rad))
+        px = int(m_w * math.cos(m_rad))
+        py = int(m_w * math.sin(m_rad))
+        self._fill_triangle(mx, my, cx - px, cy - py, cx + px, cy + py, color)
+
+        # Second hand (thin line)
+        s_angle = seconds * 6
+        s_rad = math.radians(s_angle)
+        s_len = int(r * 0.85)
+        sx = cx + int(s_len * math.sin(s_rad))
+        sy = cy - int(s_len * math.cos(s_rad))
+        self._line(cx, cy, sx, sy, GRAY)
+
+        # Center pivot
+        self._fill_circle(cx, cy, 3, GRAY)
+
     def face(self, expression, compact=False, color=LIGHT):
         """Draw a pixel-art face expression (8x8 bitmap scaled up).
 
