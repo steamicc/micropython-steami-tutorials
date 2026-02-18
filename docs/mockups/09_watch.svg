@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-09">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Screen border -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-09)">
+    <!-- Clock face circle -->
+    <circle cx="100" cy="100" r="87.5" fill="none" stroke="#666" stroke-width="1.5"/>
+    <!-- Major tick marks (12h, 3h, 6h, 9h) — bright -->
+    <line x1="100" y1="25" x2="100" y2="12.5" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="175" y1="100" x2="187.5" y2="100" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="100" y1="175" x2="100" y2="187.5" stroke="#bbb" stroke-width="1.5"/>
+    <line x1="25" y1="100" x2="12.5" y2="100" stroke="#bbb" stroke-width="1.5"/>
+    <!-- Minor tick marks (other hours) — gray -->
+    <line x1="139.1" y1="31.2" x2="142.2" y2="25" stroke="#999" stroke-width="1.5"/>
+    <line x1="168.8" y1="60.9" x2="175" y2="56.2" stroke="#999" stroke-width="1.5"/>
+    <line x1="168.8" y1="139.1" x2="175" y2="142.2" stroke="#999" stroke-width="1.5"/>
+    <line x1="139.1" y1="168.8" x2="142.2" y2="175" stroke="#999" stroke-width="1.5"/>
+    <line x1="60.9" y1="168.8" x2="56.2" y2="175" stroke="#999" stroke-width="1.5"/>
+    <line x1="31.2" y1="139.1" x2="25" y2="143.8" stroke="#999" stroke-width="1.5"/>
+    <line x1="31.2" y1="60.9" x2="25" y2="56.2" stroke="#999" stroke-width="1.5"/>
+    <line x1="60.9" y1="31.2" x2="56.2" y2="25" stroke="#999" stroke-width="1.5"/>
+    <!-- Cardinal numbers -->
+    <text x="100" y="40.4" text-anchor="middle" fill="#fff" font-family="monospace" font-size="13">12</text>
+    <text x="164.1" y="104.5" text-anchor="middle" fill="#fff" font-family="monospace" font-size="13">3</text>
+    <text x="100" y="168.6" text-anchor="middle" fill="#fff" font-family="monospace" font-size="13">6</text>
+    <text x="35.9" y="104.5" text-anchor="middle" fill="#fff" font-family="monospace" font-size="13">9</text>
+    <!-- Hour hand (10:10:30 → 305°) -->
+    <polygon points="65.6,75 98.4,103.1 101.6,96.9" fill="#bbb"/>
+    <!-- Minute hand (10:10:30 → 63°) -->
+    <polygon points="157.8,70.3 100,98.4 100,101.6" fill="#bbb"/>
+    <!-- Second hand (10:10:30 → 180°) -->
+    <line x1="100" y1="100" x2="100" y2="173.4" stroke="#999" stroke-width="1.5"/>
+    <!-- Center pivot -->
+    <circle cx="100" cy="100" r="4.7" fill="#999"/>
+  </g>
+</svg>
