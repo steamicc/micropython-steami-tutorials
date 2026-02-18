@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-08">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <!-- Screen border -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-08)">
+    <!-- Title -->
+    <text x="100" y="43" text-anchor="middle" fill="#999" font-family="monospace" font-size="13">Mood</text>
+    <!-- Pixel-art happy face (8x8 bitmap, compact mode) -->
+    <rect x="75.0" y="56.25" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="112.5" y="56.25" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="75.0" y="68.75" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="112.5" y="68.75" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="62.5" y="106.25" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="125.0" y="106.25" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="75.0" y="118.75" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="87.5" y="118.75" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="100.0" y="118.75" width="12.5" height="12.5" fill="#bbb"/>
+    <rect x="112.5" y="118.75" width="12.5" height="12.5" fill="#bbb"/>
+    <!-- Subtitle -->
+    <text x="100" y="175" text-anchor="middle" fill="#7f7" font-family="monospace" font-size="10">HAPPY</text>
+  </g>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <clipPath id="circle-clip-08-angry">
+      <circle cx="100" cy="100" r="95"/>
+    </clipPath>
+  </defs>
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#555" stroke-width="3"/>
+  <circle cx="100" cy="100" r="95" fill="#000"/>
+  <g clip-path="url(#circle-clip-08-angry)">
+    <rect x="48.44" y="48.44" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="134.38" y="48.44" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="65.62" y="65.62" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="117.19" y="65.62" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="65.62" y="82.81" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="117.19" y="82.81" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="65.62" y="117.19" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="82.81" y="117.19" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="100.00" y="117.19" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="117.19" y="117.19" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="48.44" y="134.38" width="17.19" height="17.19" fill="#bbb"/>
+    <rect x="134.38" y="134.38" width="17.19" height="17.19" fill="#bbb"/>
+  </g>
+</svg>
