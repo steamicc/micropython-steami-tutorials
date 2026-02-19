@@ -338,7 +338,7 @@ class Screen:
 
         # Scroll window
         start = max(0, min(selected - visible // 2, len(items) - visible))
-        y = 25
+        y = 35
 
         for i in range(start, min(start + visible, len(items))):
             iy = y + (i - start) * item_h
