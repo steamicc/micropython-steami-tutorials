@@ -204,8 +204,31 @@ def generate_report(tutorials, data):
 # Main
 # ---------------------------------------------------------------------------
 
+DISPLAY_ORDER = [
+    "01_temperature",
+    "02_battery",
+    "03_comfort_dual",
+    "04_circular_gauge",
+    "05_scrolling_graph",
+    "06_dpad_menu",
+    "07_compass",
+    "09_watch",
+    "08_smiley_happy",
+    "08_smiley_sad",
+    "08_smiley_surprised",
+    "08_smiley_angry",
+    "08_smiley_sleeping",
+    "08_smiley_love",
+    "08_smiley_reactive",
+]
+
+
 def main():
-    tutorials = find_tutorials()
+    discovered = find_tutorials()
+    # Apply explicit display order; append any unlisted tutorials at the end
+    ordered = [t for t in DISPLAY_ORDER if t in discovered]
+    ordered += [t for t in discovered if t not in ordered]
+    tutorials = ordered
     print(f"Found {len(tutorials)} tutorial(s).")
 
     data = {}

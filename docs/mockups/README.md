@@ -70,6 +70,42 @@ Each card shows the SVG reference mockup alongside the Pillow simulation, with t
       <sub>SSIM&nbsp;0.8585&nbsp;✅</sub>
     </td>
     <td align='center' valign='top' width='50%'>
+      <strong><a href='../../tutorials/09_watch/main.py'>Analog Watch</a></strong><br><br>
+      <img src='09_watch.svg' width='180' title='SVG reference'>&nbsp;<img src='09_watch_sim.png' width='180' title='Simulation'><br>
+      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
+      <br><code>screen.watch(hours, minutes, seconds)</code><br>
+      <sub>Classical analog watch face with hour, minute and second hands</sub><br>
+      <sub>SSIM&nbsp;0.8929&nbsp;✅</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align='center' valign='top' width='50%'>
+      <strong><a href='../../tutorials/08_smiley_happy/main.py'>Smiley — Happy</a></strong><br><br>
+      <img src='08_smiley_happy.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_happy_sim.png' width='180' title='Simulation'><br>
+      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
+      <br><code>screen.face('happy')</code><br>
+      <sub>Full-screen happy face expression</sub><br>
+      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
+    </td>
+    <td align='center' valign='top' width='50%'>
+      <strong><a href='../../tutorials/08_smiley_sad/main.py'>Smiley — Sad</a></strong><br><br>
+      <img src='08_smiley_sad.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_sad_sim.png' width='180' title='Simulation'><br>
+      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
+      <br><code>screen.face('sad')</code><br>
+      <sub>Full-screen sad face expression</sub><br>
+      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align='center' valign='top' width='50%'>
+      <strong><a href='../../tutorials/08_smiley_surprised/main.py'>Smiley — Surprised</a></strong><br><br>
+      <img src='08_smiley_surprised.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_surprised_sim.png' width='180' title='Simulation'><br>
+      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
+      <br><code>screen.face('surprised')</code><br>
+      <sub>Full-screen surprised face expression</sub><br>
+      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
+    </td>
+    <td align='center' valign='top' width='50%'>
       <strong><a href='../../tutorials/08_smiley_angry/main.py'>Smiley — Angry</a></strong><br><br>
       <img src='08_smiley_angry.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_angry_sim.png' width='180' title='Simulation'><br>
       <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
@@ -80,11 +116,11 @@ Each card shows the SVG reference mockup alongside the Pillow simulation, with t
   </tr>
   <tr>
     <td align='center' valign='top' width='50%'>
-      <strong><a href='../../tutorials/08_smiley_happy/main.py'>Smiley — Happy</a></strong><br><br>
-      <img src='08_smiley_happy.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_happy_sim.png' width='180' title='Simulation'><br>
+      <strong><a href='../../tutorials/08_smiley_sleeping/main.py'>Smiley — Sleeping</a></strong><br><br>
+      <img src='08_smiley_sleeping.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_sleeping_sim.png' width='180' title='Simulation'><br>
       <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.face('happy')</code><br>
-      <sub>Full-screen happy face expression</sub><br>
+      <br><code>screen.face('sleeping')</code><br>
+      <sub>Full-screen sleeping face expression</sub><br>
       <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
     </td>
     <td align='center' valign='top' width='50%'>
@@ -104,42 +140,6 @@ Each card shows the SVG reference mockup alongside the Pillow simulation, with t
       <br><code>screen.face(mood, compact=True)</code><br>
       <sub>Compact face with title and mood label, reactive to sensor input</sub><br>
       <sub>SSIM&nbsp;0.9732&nbsp;✅</sub>
-    </td>
-    <td align='center' valign='top' width='50%'>
-      <strong><a href='../../tutorials/08_smiley_sad/main.py'>Smiley — Sad</a></strong><br><br>
-      <img src='08_smiley_sad.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_sad_sim.png' width='180' title='Simulation'><br>
-      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.face('sad')</code><br>
-      <sub>Full-screen sad face expression</sub><br>
-      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align='center' valign='top' width='50%'>
-      <strong><a href='../../tutorials/08_smiley_sleeping/main.py'>Smiley — Sleeping</a></strong><br><br>
-      <img src='08_smiley_sleeping.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_sleeping_sim.png' width='180' title='Simulation'><br>
-      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.face('sleeping')</code><br>
-      <sub>Full-screen sleeping face expression</sub><br>
-      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
-    </td>
-    <td align='center' valign='top' width='50%'>
-      <strong><a href='../../tutorials/08_smiley_surprised/main.py'>Smiley — Surprised</a></strong><br><br>
-      <img src='08_smiley_surprised.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_surprised_sim.png' width='180' title='Simulation'><br>
-      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.face('surprised')</code><br>
-      <sub>Full-screen surprised face expression</sub><br>
-      <sub>SSIM&nbsp;0.9879&nbsp;✅</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align='center' valign='top' width='50%'>
-      <strong><a href='../../tutorials/09_watch/main.py'>Analog Watch</a></strong><br><br>
-      <img src='09_watch.svg' width='180' title='SVG reference'>&nbsp;<img src='09_watch_sim.png' width='180' title='Simulation'><br>
-      <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.watch(hours, minutes, seconds)</code><br>
-      <sub>Classical analog watch face with hour, minute and second hands</sub><br>
-      <sub>SSIM&nbsp;0.8929&nbsp;✅</sub>
     </td>
     <td></td>
   </tr>
