@@ -8,6 +8,12 @@ Usage:
     python tutorials/07_compass/screenshot.py
 """
 
+METADATA = {
+    "title": "Compass",
+    "widget": "screen.compass(heading)",
+    "description": "Compass rose with heading needle and cardinal labels",
+}
+
 import sys
 import os
 

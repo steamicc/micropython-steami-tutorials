@@ -8,6 +8,12 @@ Usage:
     python tutorials/01_temperature/screenshot.py
 """
 
+METADATA = {
+    "title": "Temperature",
+    "widget": "screen.value(temp, unit='C')",
+    "description": "Reads temperature from HTS221 sensor",
+}
+
 import sys
 import os
 

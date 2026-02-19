@@ -8,6 +8,12 @@ Usage:
     python tutorials/08_smiley_reactive/screenshot.py
 """
 
+METADATA = {
+    "title": "Smiley — Reactive",
+    "widget": "screen.face(mood, compact=True)",
+    "description": "Compact face with title and mood label, reactive to sensor input",
+}
+
 import sys
 import os
 

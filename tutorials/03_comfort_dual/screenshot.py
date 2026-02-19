@@ -8,6 +8,12 @@ Usage:
     python tutorials/03_comfort_dual/screenshot.py
 """
 
+METADATA = {
+    "title": "Comfort (dual)",
+    "widget": "screen.value() x2",
+    "description": "Temperature and humidity side by side (HTS221)",
+}
+
 import sys
 import os
 

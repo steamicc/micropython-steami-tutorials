@@ -8,6 +8,12 @@ Usage:
     python tutorials/02_battery/screenshot.py
 """
 
+METADATA = {
+    "title": "Battery",
+    "widget": "screen.bar(soc)",
+    "description": "Battery state of charge from BQ27441 gauge",
+}
+
 import sys
 import os
 

@@ -5,6 +5,12 @@ Usage:
     python tutorials/08_smiley_sleeping/screenshot.py
 """
 
+METADATA = {
+    "title": "Smiley — Sleeping",
+    "widget": "screen.face('sleeping')",
+    "description": "Full-screen sleeping face expression",
+}
+
 import sys
 import os
 

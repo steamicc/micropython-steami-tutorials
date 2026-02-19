@@ -5,6 +5,12 @@ Usage:
     python tutorials/08_smiley_happy/screenshot.py
 """
 
+METADATA = {
+    "title": "Smiley — Happy",
+    "widget": "screen.face('happy')",
+    "description": "Full-screen happy face expression",
+}
+
 import sys
 import os
 

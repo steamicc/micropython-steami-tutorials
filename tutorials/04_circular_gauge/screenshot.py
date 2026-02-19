@@ -8,6 +8,12 @@ Usage:
     python tutorials/04_circular_gauge/screenshot.py
 """
 
+METADATA = {
+    "title": "Circular Gauge",
+    "widget": "screen.gauge(dist, min_val, max_val, unit)",
+    "description": "Distance visualized as a circular arc gauge (VL53L1X ToF)",
+}
+
 import sys
 import os
 

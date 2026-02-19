@@ -8,6 +8,12 @@ Usage:
     python tutorials/09_watch/screenshot.py
 """
 
+METADATA = {
+    "title": "Analog Watch",
+    "widget": "screen.watch(hours, minutes, seconds)",
+    "description": "Classical analog watch face with hour, minute and second hands",
+}
+
 import sys
 import os
 

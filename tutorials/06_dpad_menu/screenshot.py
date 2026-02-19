@@ -8,6 +8,12 @@ Usage:
     python tutorials/06_dpad_menu/screenshot.py
 """
 
+METADATA = {
+    "title": "D-pad Menu",
+    "widget": "screen.menu(items, selected)",
+    "description": "Scrollable menu navigated with D-pad buttons (MCP23009E)",
+}
+
 import sys
 import os
 

@@ -8,6 +8,12 @@ Usage:
     python tutorials/05_scrolling_graph/screenshot.py
 """
 
+METADATA = {
+    "title": "Scrolling Graph",
+    "widget": "screen.graph(data, min_val, max_val)",
+    "description": "Light level history as a scrolling line graph (APDS9960)",
+}
+
 import sys
 import os
 
