@@ -10,7 +10,7 @@ Usage:
 
 METADATA = {
     "title": "Smiley — Reactive",
-    "widget": "screen.face(mood, compact=True)",
+    "widget": "screen.face(mood)",
     "description": "Compact face with title and mood label, reactive to sensor input",
 }
 
@@ -33,7 +33,7 @@ screen = Screen(backend)
 # --- Same drawing code as main.py, with fixed values ---
 screen.clear()
 screen.title("Mood")
-screen.face("happy", compact=True)
+screen.face("happy")
 screen.subtitle("HAPPY", color=GREEN)
 screen.show()
 

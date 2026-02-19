@@ -137,7 +137,7 @@ Each card shows the SVG reference mockup alongside the Pillow simulation, with t
       <strong><a href='../../tutorials/08_smiley_reactive/main.py'>Smiley — Reactive</a></strong><br><br>
       <img src='08_smiley_reactive.svg' width='180' title='SVG reference'>&nbsp;<img src='08_smiley_reactive_sim.png' width='180' title='Simulation'><br>
       <sub>SVG&nbsp;reference&nbsp;&nbsp;·&nbsp;&nbsp;Simulation</sub><br>
-      <br><code>screen.face(mood, compact=True)</code><br>
+      <br><code>screen.face(mood)</code><br>
       <sub>Compact face with title and mood label, reactive to sensor input</sub><br>
       <sub>SSIM&nbsp;0.9732&nbsp;✅</sub>
     </td>

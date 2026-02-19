@@ -47,7 +47,7 @@ while True:
 
     screen.clear()
     screen.title("Mood")
-    screen.face(expr, compact=True, color=color)
+    screen.face(expr, color=color)
     screen.subtitle(label, "dist:{}mm".format(dist))
     screen.show()
 
