@@ -4,15 +4,13 @@
 
 On crée des tutoriels MicroPython pour la carte **STeaMi** (https://www.steami.cc/), une carte éducative conçue par le L.A.B. (Laboratoire d'Aix-périmentation et de Bidouille) pour enseigner la programmation et l'expérimentation assistée par ordinateur au collège et au lycée.
 
-Le repo d'exemples existants est ici : https://github.com/steamicc/micropython-steami-sample
+- Repo d'exemples existants : https://github.com/steamicc/micropython-steami-sample
+- Support MicroPython : https://github.com/steamicc/micropython-steami/tree/stm32-steami-rev1d-final
+- Drivers : https://github.com/steamicc/micropython-steami-lib
+- Design carte : https://github.com/steamicc/steami-reference-design
+- Documentation : https://steamicc.notion.site/Documentation-1fd4a41b9b8f4899878e3d42887d2d78?pvs=74
 
-Le support micropython de la carte est ici : https://github.com/steamicc/micropython-steami/tree/stm32-steami-rev1d-final
-
-Les drivers sont situés ici : https://github.com/steamicc/micropython-steami-lib
-
-L'ensemble du design de la carte est disponible dans ce repo : https://github.com/steamicc/steami-reference-design
-
-La documentation est présente ici : https://steamicc.notion.site/Documentation-1fd4a41b9b8f4899878e3d42887d2d78?pvs=74
+---
 
 ## Hardware de la carte STeaMi
 
@@ -33,168 +31,311 @@ La documentation est présente ici : https://steamicc.notion.site/Documentation-
 - **USB** : drag & drop + série (REPL sur LPUART1, 115200 baud)
 - **Batterie** : connecteur batterie LiPo
 
-## API MicroPython — Patterns vérifiés dans le repo existant
+---
 
-### Initialisation écran (identique partout)
+## Bibliothèque steami_screen — API haut niveau
+
+**Fichier** : `lib/steami_screen.py`
+
+La bibliothèque fonctionne avec deux backends :
+- **SSD1327** (128×128, GS4_HMSB) — écran principal de la carte STeaMi
+- **GC9A01** (240×240, RGB565) — écran couleur circulaire optionnel
+
+**CRITICAL** : Appeler `screen.clear()` en début de boucle et `screen.show()` **une seule fois** à la fin.
+
+### Initialisation sur la carte (SSD1327)
+
 ```python
 from machine import SPI, Pin
 import ssd1327
+from steami_ssd1327 import SSD1327Display
+from steami_screen import Screen
 
 spi = SPI(1)
 dc = Pin("DATA_COMMAND_DISPLAY")
 res = Pin("RST_DISPLAY")
 cs = Pin("CS_DISPLAY")
-display = ssd1327.WS_OLED_128X128_SPI(spi, dc, res, cs)
+display = SSD1327Display(ssd1327.WS_OLED_128X128_SPI(spi, dc, res, cs))
+screen = Screen(display)
 ```
+
+### Propriétés utiles
+
+```python
+screen.center   # (cx, cy) — (64,64) sur 128px, (120,120) sur 240px
+screen.radius   # rayon utile — 64 sur 128px, 120 sur 240px
+```
+
+### Widgets disponibles
+
+```python
+screen.title("Label")                            # texte centré en haut (y=20), max 16 chars
+screen.subtitle("Ligne 1", "Ligne 2")            # texte centré en bas, max 1-2 lignes
+screen.value(42, unit="mm", at="CENTER")         # grande valeur (scale×2), at="W"/"E" pour 2 valeurs
+screen.bar(val, max_val=100)                     # barre de progression horizontale
+screen.gauge(val, min_val=0, max_val=100, unit="mm")  # jauge circulaire 270° — APPELER AVANT title()
+screen.graph(data, min_val=0, max_val=100)       # graphe scrollant (data = liste de floats)
+screen.menu(items, selected=0)                   # liste avec surlignage — PAS de subtitle compatible
+screen.compass(heading)                          # rose des vents — widget immersif seul
+screen.watch(hours, minutes, seconds=0)          # aiguilles analogiques — widget immersif seul
+screen.face(expression, color=LIGHT)             # smiley bitmap 8×8 — immersif (peut avoir title+subtitle)
+```
+
+Expressions `face()` valides : `"happy"` `"sad"` `"surprised"` `"sleeping"` `"angry"` `"love"`
+
+### Dessin bas niveau
+
+```python
+screen.text("txt", at="CENTER", scale=1)
+screen.line(x1, y1, x2, y2)
+screen.circle(x, y, r, fill=False)
+screen.rect(x, y, w, h, fill=False)
+screen.pixel(x, y)
+screen.clear()   # efface tout en noir
+screen.show()    # envoie le framebuf à l'écran
+```
+
+### Couleurs disponibles (steami_screen)
+
+```python
+from steami_screen import BLACK, DARK, GRAY, LIGHT, WHITE, GREEN, RED, YELLOW, BLUE
+# BLACK=0, DARK~6, GRAY~9, LIGHT~11, WHITE=15 (valeurs GS4 pour SSD1327)
+# GREEN/RED/YELLOW/BLUE : couleurs accentuées (dégradent en gris sur SSD1327)
+```
+
+---
+
+## Tooling — workflow de développement
+
+### Commandes principales
+
+```bash
+# Valider tous les tutoriels (SSIM ≥ 0.85 requis)
+~/venv/bin/python3 validate.py
+
+# Valider un seul tutoriel
+~/venv/bin/python3 validate.py 04_circular_gauge
+
+# Régénérer le rapport galerie (docs/mockups/README.md)
+~/venv/bin/python3 generate_report.py
+
+# Générer le screenshot d'un tutoriel
+~/venv/bin/python3 tutorials/04_circular_gauge/screenshot.py
+```
+
+**ALWAYS** : après avoir modifié un SVG ou un `screenshot.py`, relancer `validate.py` pour vérifier le SSIM.
+
+### Fichiers outils
+
+| Fichier | Rôle |
+|---------|------|
+| `validate.py` | Lance chaque `screenshot.py`, rasterise le SVG, calcule le SSIM |
+| `generate_report.py` | Génère `docs/mockups/README.md` — galerie HTML 2 colonnes |
+| `sim/sim_backend.py` | Backend Pillow pour simuler l'écran sur PC |
+| `lib/steami_screen.py` | Bibliothèque haute niveau partagée carte + sim |
+| `lib/steami_ssd1327.py` | Wrapper SSD1327 pour la carte |
+| `lib/steami_gc9a01.py` | Wrapper GC9A01 pour la carte |
+| `lib/steami_colors.py` | Constantes couleurs |
+| `docs/design-constraints.md` | Zones de layout, contraintes widgets (2 écrans) |
+| `docs/layout-zones.svg` | Schéma SVG comparatif 128×128 vs 240×240 |
+| `docs/mockups/README.md` | Galerie générée — NE PAS ÉDITER MANUELLEMENT |
+
+### Pattern screenshot.py — REQUIRED pour chaque tutoriel
+
+**CRITICAL** : tout nouveau tutoriel doit avoir ce fichier `screenshot.py`.
+
+```python
+METADATA = {
+    "title": "Nom affiché dans la galerie",
+    "widget": "screen.gauge(val, min_val, max_val, unit)",
+    "description": "Description courte en anglais",
+}
+
+import sys, os
+root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(root, "lib"))
+sys.path.insert(0, os.path.join(root, "sim"))
+
+from steami_screen import Screen, GREEN   # importer les couleurs nécessaires
+from sim_backend import SimBackend
+
+backend = SimBackend(128, 128, scale=3)   # scale=3 pour PNG lisible
+screen = Screen(backend)
+
+# --- Même code que main.py, avec des valeurs fixes ---
+screen.clear()
+screen.title("Title")
+screen.value(42, unit="mm")
+screen.show()
+
+out_dir = os.path.join(root, "docs", "mockups")
+out_path = os.path.join(out_dir, "04_circular_gauge_sim.png")
+backend.save(out_path)
+print("Saved:", out_path)
+```
+
+### Pattern mockup SVG — REQUIRED pour chaque tutoriel
+
+**CRITICAL** : le fichier `docs/mockups/{name}.svg` est la référence de validation SSIM.
+- Viewbox 200×200, clipPath sur cercle r=95, cx=cy=100
+- Couleurs : `#000` fond, `#999` GRAY, `#bbb` LIGHT, `#fff` WHITE, `#7f7` GREEN, `#f55` RED, etc.
+- **Facteur SVG** : les coordonnées écran 128px → coordonnées SVG via `(coord_px / 128) × 200`
+- Titre positionné à `y=43` (≈ y=20 px écran × 200/128 + 12 pour baseline)
+
+---
+
+## Tutoriels réalisés (15/15 PASS)
+
+| Dossier | Widget principal | Capteur/composant |
+|---------|-----------------|-------------------|
+| `01_temperature` | `value()` + `bar()` | HTS221 température |
+| `02_battery` | `value()` + `gauge()` | BQ27441 état de charge |
+| `03_comfort_dual` | `value("W")` + `value("E")` | HTS221 temp + humidité |
+| `04_circular_gauge` | `gauge()` | VL53L1X distance |
+| `05_scrolling_graph` | `graph()` | VL53L1X historique |
+| `06_dpad_menu` | `menu()` | MCP23009E D-PAD navigation |
+| `07_compass` | `compass()` | heading simulé |
+| `08_smiley_angry` | `face("angry")` | — |
+| `08_smiley_happy` | `face("happy")` | — |
+| `08_smiley_love` | `face("love")` | — |
+| `08_smiley_reactive` | `face(expr)` | VL53L1X distance → expression |
+| `08_smiley_sad` | `face("sad")` | — |
+| `08_smiley_sleeping` | `face("sleeping")` | — |
+| `08_smiley_surprised` | `face("surprised")` | — |
+| `09_watch` | `watch()` | RTC / horloge |
+
+---
+
+## Ce qu'il reste à faire
+
+### Série "Projets combinés" (PAS ENCORE CODÉS)
+
+| # | Projet | Composants |
+|---|--------|-----------|
+| 1 | Theremin lumineux | Distance → fréquence buzzer + `bar()` |
+| 2 | Feux tricolores | LED RGB + boutons + distance → machine à états |
+| 3 | Gardien de salle | Distance + LED + buzzer → alarme avec seuil |
+| 4 | Station confort | Temp + humidité → indice de confort + `gauge()` |
+| 5 | Luxmètre scientifique | Lumière → `graph()` scrollant + série |
+| 6 | Talkie-Walkie Morse | BLE + boutons + buzzer |
+| 7 | Radar de poche | Servo + distance → vue radar |
+| 8 | Robot expressif | KS4034F + `face()` + sons |
+
+### Série "Explorations" — patterns non couverts (PAS ENCORE CODÉS)
+
+| # | Sujet | Lacune comblée |
+|---|-------|---------------|
+| 1 | Proximité APDS9960 | Mode proximité (0-255) jamais montré |
+| 2 | GPIO extension | Pins P0-P16, ADC jamais exploités |
+| 3 | Capteur externe Qwiic | I2C(3) jamais illustré |
+| 4 | Multitâche asyncio | `async/await`, `asyncio.gather()` |
+| 5 | Interruptions (IRQ) | `Pin.irq()`, `mcp.interrupt_on_change()` |
+| 6 | Machine à états | enum d'états, transitions |
+| 7 | Enregistreur de données | `open()`/`write()` flash + CSV + timestamps RTC |
+| 8 | Console série bidirectionnelle | `sys.stdin`/`input()` depuis le PC |
+| 9 | Palette de gris | 16 niveaux, `display.lookup()` |
+
+---
+
+## API MicroPython — Patterns vérifiés
 
 ### Capteurs I2C
 ```python
 from machine import I2C
 i2c = I2C(1)
 
-# Température / Humidité
 from hts221 import HTS221
 capteur = HTS221(i2c)
-capteur.temperature()  # float en °C
-capteur.humidity()     # float en %
+capteur.temperature()  # float °C
+capteur.humidity()     # float %
 
-# Distance
 from vl53l1x import VL53L1X
 capteur = VL53L1X(i2c)
-capteur.read()  # int en mm
+capteur.read()  # int mm
 
-# Luminosité
 from apds9960 import uAPDS9960 as APDS9960
 capteur = APDS9960(i2c)
-capteur.enableLightSensor()  # NÉCESSAIRE avant lecture
-capteur.readAmbientLight()   # int en lux
+capteur.enableLightSensor()
+capteur.readAmbientLight()   # int lux
+capteur.enableProximitySensor()
+capteur.readProximity()      # int 0-255
 
-# Proximité (même capteur APDS9960)
-capteur.enableProximitySensor()  # NÉCESSAIRE avant lecture
-capteur.readProximity()          # int (0-255, plus c'est grand plus c'est proche)
-
-# Batterie
 from bq27441 import BQ27441
 capteur = BQ27441(i2c)
-capteur.state_of_charge()     # int en %
-capteur.voltage()             # int en mV
-capteur.current_average()     # float en mA
-capteur.capacity_remaining()  # int en mAh
-capteur.capacity_full()       # int en mAh
+capteur.state_of_charge()    # int %
+capteur.voltage()            # int mV
+capteur.current_average()    # float mA
+capteur.capacity_remaining() # int mAh
+capteur.capacity_full()      # int mAh
 ```
 
-### Boutons
+### Boutons et D-PAD
 ```python
 from machine import Pin
-bouton_a = Pin("A_BUTTON", Pin.IN, Pin.PULL_UP)
+bouton_a = Pin("A_BUTTON", Pin.IN, Pin.PULL_UP)   # value() == 0 = appuyé
 bouton_b = Pin("B_BUTTON", Pin.IN, Pin.PULL_UP)
 bouton_menu = Pin("MENU_BUTTON", Pin.IN, Pin.PULL_UP)
-# Appuyé = value() == 0
+
+from mcp23009e import MCP23009E
+from mcp23009e.const import *
+reset = Pin("RST_EXPANDER", Pin.OUT)
+mcp = MCP23009E(i2c, address=MCP23009_I2C_ADDR, reset_pin=reset)
+mcp.setup(MCP23009_BTN_UP, MCP23009_DIR_INPUT, pullup=MCP23009_PULLUP)
+mcp.get_level(MCP23009_BTN_UP)  # MCP23009_LOGIC_LOW = appuyé
+# Interruptions (optionnel)
+mcp.interrupt_on_change(MCP23009_BTN_UP, callback)
 ```
 
-### LED RGB
+### LED RGB et Speaker
 ```python
 import pyb
-led_rouge = pyb.LED(1)
-led_verte = pyb.LED(2)
-led_bleue = pyb.LED(3)
-led_rouge.on() / led_rouge.off()
-```
+led_rouge = pyb.LED(1)  # pyb.LED(2)=vert, pyb.LED(3)=bleu
+led_rouge.on() ; led_rouge.off()
 
-### Speaker (bitbang)
-```python
 from machine import Pin
 from time import sleep_us, ticks_us, ticks_add, ticks_diff
-
 speaker = Pin("SPEAKER", Pin.OUT_PP)
 
 def tone(pin, freq, duration_ms):
     if freq == 0:
+        from time import sleep
         sleep(duration_ms / 1000)
         return
     period_us = 1_000_000 // freq
     half_period = period_us // 2
     end_time = ticks_add(ticks_us(), duration_ms * 1000)
     while ticks_diff(end_time, ticks_us()) > 0:
-        pin.on()
-        sleep_us(half_period)
-        pin.off()
-        sleep_us(half_period)
+        pin.on(); sleep_us(half_period)
+        pin.off(); sleep_us(half_period)
 ```
 
-### Écran — fonctions de dessin
+### Écran — fonctions bas niveau (sans steami_screen)
 ```python
-# Couleurs : 0 (noir) à 15 (blanc) — GS4_HMSB 4-bit
-display.fill(0)                                         # efface tout
-display.text("texte", x, y, couleur)                    # texte (8px par char, col=15 par défaut)
-display.pixel(x, y, couleur)                            # 1 pixel
-display.line(x1, y1, x2, y2, couleur)                   # ligne quelconque
-display.scroll(dx, dy)                                  # scroll software
-display.framebuf.fill_rect(x, y, w, h, couleur)         # rectangle plein
-display.framebuf.rect(x, y, w, h, couleur)              # rectangle vide
-display.framebuf.hline(x, y, w, couleur)                # ligne horizontale
-display.framebuf.vline(x, y, h, couleur)                # ligne verticale
-display.framebuf.blit(framebuffer, x, y)                # blitter un framebuf
-display.show()                                          # rafraîchir l'écran
-
-# Contrôle écran
-display.contrast(0-255)                                 # luminosité
-display.rotate(True/False)                              # rotation 180°
-display.invert(True/False)                              # inverser couleurs
-display.poweroff() / display.poweron()                  # veille écran
+display.fill(0)
+display.text("texte", x, y, couleur)
+display.framebuf.fill_rect(x, y, w, h, couleur)
+display.framebuf.hline(x, y, w, couleur)
+display.framebuf.vline(x, y, h, couleur)
+display.show()
 ```
 
-### PWM / Servo
-```python
-from pyb import Pin, Timer
-pin = Pin("P11", Pin.OUT_PP)
-timer = Timer(timer_id, freq=50)
-channel = timer.channel(channel_id, Timer.PWM, pin=pin)
-channel.pulse_width_percent(duty)  # 5% à 10% pour servo standard
-```
+---
 
-### BLE (aioble)
-```python
-import bluetooth
-import aioble
-ble = bluetooth.BLE()
-ble.active(True)
-# Voir BLE/STeaMi_talk/ et BLE/STeaMi_adv/ pour les patterns complets
-```
+## Conventions de code
 
-### D-PAD (MCP23009E via I2C)
-```python
-from machine import I2C, Pin
-from mcp23009e import MCP23009E
-from mcp23009e.const import *
+- **Langue du code** : anglais pour les commentaires et noms de fonctions
+- **Langue des textes écran** : anglais sans accents (limitation ASCII 7-bit du driver)
+- **Fichiers autonomes** : chaque `main.py` contient tout (pas de module partagé)
+- **Pattern capteur** : étape 1 (écran) → 2 (capteur) → 3 (lire) → 4 (afficher) → 5 (boucle)
+- **Sleep** : 0.5s par défaut, 0.1s pour les boutons, 2s pour la batterie
+- **Print série** : toujours en parallèle de l'affichage écran
 
-i2c = I2C(1)
-reset = Pin("RST_EXPANDER", Pin.OUT)
-mcp = MCP23009E(i2c, address=MCP23009_I2C_ADDR, reset_pin=reset)
-
-# Configuration des boutons (entrée + pull-up)
-mcp.setup(MCP23009_BTN_UP, MCP23009_DIR_INPUT, pullup=MCP23009_PULLUP)
-mcp.setup(MCP23009_BTN_DOWN, MCP23009_DIR_INPUT, pullup=MCP23009_PULLUP)
-mcp.setup(MCP23009_BTN_LEFT, MCP23009_DIR_INPUT, pullup=MCP23009_PULLUP)
-mcp.setup(MCP23009_BTN_RIGHT, MCP23009_DIR_INPUT, pullup=MCP23009_PULLUP)
-
-# Lecture (actif bas comme les boutons A/B/MENU)
-mcp.get_level(MCP23009_BTN_UP)  # MCP23009_LOGIC_LOW = appuyé
-
-# Interruptions (optionnel, nécessite interrupt_pin=Pin("INT_EXPANDER", Pin.IN))
-mcp.interrupt_on_falling(MCP23009_BTN_UP, callback)
-mcp.interrupt_on_raising(MCP23009_BTN_UP, callback)
-mcp.interrupt_on_change(MCP23009_BTN_UP, callback)  # reçoit le niveau en paramètre
-```
-
-## Contenu existant dans le repo (ne pas dupliquer)
+## Contenu existant dans le repo upstream (ne pas dupliquer)
 
 | Dossier | Contenu |
 |---------|---------|
 | LED/blink | Cycle RGB avec affichage texte |
-| LED/basic_toggle | Toggle simple |
 | BUTTON/set_led_on | Bouton → LED |
-| SCREEN/text | Affichage texte |
 | SCREEN/steami_faces | Smileys bitmap 8×8 scalés |
 | SCREEN/steami_animation | Animation |
 | SENSOR/show_distance | VL53L1X → écran |
@@ -202,102 +343,16 @@ mcp.interrupt_on_change(MCP23009_BTN_UP, callback)  # reçoit le niveau en param
 | SENSOR/show_temp_humidity | HTS221 → écran |
 | SENSOR/show_fuel_gauge | BQ27441 → écran |
 | GAME/snake | Snake dans cercle |
-| GAME/dinoSteam | Dino runner |
-| GAME/ticTacToe | Morpion |
 | BLE/STeaMi_adv | Advertising BLE |
-| BLE/STeaMi_talk | Communication bidirectionnelle peripheral/central |
-| BLE/Thermometer_Scanner | Scanner BLE thermomètre |
-| DEMO/ | Menu combiné (sensors, buzzer, LED, screen, button, gesture) |
-| SCENARIO/1,2,3 | Multi-cartes BLE avec rôles peripheral/relay |
-| BASIC/PWM/Servo_Sweep | Balayage servo avec auto-détection timer |
-| ROBOT/KS4034F/ | Moteurs, suivi de ligne, ultrason, servo scanner |
-| BATTERY/ | Profiling consommation par périphérique |
-
-## Ce qu'il reste à faire
-
-### Série "Un capteur à la fois" (9 tutoriels)
-
-Principe : **un pattern identique décliné pour chaque capteur/actionneur**. Même structure en 5 étapes, mêmes noms de fonctions, même layout écran.
-
-| Fichier | Composant | Fonction clé |
-|---------|-----------|-------------|
-| 01_temperature/main.py | HTS221 | `lire()` → `capteur.temperature()` |
-| 02_humidite/main.py | HTS221 | `lire()` → `capteur.humidity()` |
-| 03_distance/main.py | VL53L1X | `lire()` → `capteur.read()` |
-| 04_luminosite/main.py | APDS9960 | `lire()` → `capteur.readAmbientLight()` |
-| 05_batterie/main.py | BQ27441 | `lire()` → `capteur.state_of_charge()` |
-| 06_boutons/main.py | Boutons A/B/MENU | `lire()` → test `value() == 0` |
-| 07_led_rgb/main.py | LED RGB | `actionner(led)` → `on()`/`off()` |
-| 08_buzzer/main.py | Speaker | `actionner(freq, duree)` → bitbang |
-| 09_ecran/main.py | SSD1327 | 4 fonctions de dessin (texte, rect, cercle, damier) |
-
-Chaque tutoriel a un `README.md` avec objectif, composant, structure, sortie série et "Pour aller plus loin".
-
-### Série "Projets combinés" (proposés, PAS ENCORE CODÉS)
-
-
-
-Projets qui combinent plusieurs capteurs/actionneurs :
-
-1. **Smiley réactif** — Boutons + distance + lumière → expression sur écran
-2. **Theremin lumineux** — Distance → fréquence buzzer + barre visuelle
-3. **Feux tricolores** — LED RGB + boutons + distance → machine à états
-4. **Gardien de salle** — Distance + LED + buzzer → alarme avec seuil
-5. **Station confort** — Temp + humidité → indice de confort + jauge circulaire
-6. **Luxmètre scientifique** — Lumière → graphe temporel scrolling + série
-7. **Talkie-Walkie Morse** — BLE + boutons + buzzer → communication Morse
-8. **Radar de poche** — Servo + distance → vue radar sur écran circulaire
-9. **Podomètre connecté** — Distance/accéléromètre + BLE → compteur de pas
-10. **Escape Game** — Tous capteurs → scénario narratif multi-énigmes
-11. **Réseau de capteurs** — Multi-cartes BLE → centralisation données
-12. **Robot expressif** — KS4034F + smileys + sons → robot avec émotions
-
-### Série "Explorations" — hardware et patterns non couverts (PAS ENCORE CODÉS)
-
-Tutoriels qui comblent les lacunes : hardware inexploité, patterns logiciels absents, capacités écran sous-utilisées.
-
-**Hardware inexploité :**
-
-1. **D-PAD navigation** — MCP23009E, polling I2C, menu directionnel sur écran → premier usage du D-PAD
-2. **Proximité** — APDS9960 mode proximité (0-255), barre graphique réactive → mode capteur jamais montré
-3. **Horloge / chronomètre** — RTC (`pyb.RTC()`), formatage temps, affichage persistant → RTC jamais utilisé
-4. **GPIO extension** — Pins P0-P16, ADC (`pyb.ADC()`), lecture analogique → connecteurs jamais exploités
-5. **Capteur externe Qwiic** — I2C(3), scan bus, protocole I2C générique → bus externe jamais illustré
-
-**Patterns logiciels :**
-
-6. **Multitâche asyncio** — `async/await`, `asyncio.gather()`, tâches capteur + écran + boutons en parallèle → pattern fondamental jamais enseigné
-7. **Interruptions (IRQ)** — `Pin.irq()` sur boutons, `mcp.interrupt_on_change()` sur D-PAD, réveil sur événement → tout est en polling actuellement
-8. **Machine à états** — enum d'états, transitions, pattern réactif → structure de base des programmes interactifs
-9. **Enregistreur de données** — `open()`/`write()`/`read()` sur flash interne, format CSV, timestamps RTC → filesystem jamais utilisé
-10. **Console série bidirectionnelle** — `sys.stdin`/`input()`, commandes depuis le PC, protocole texte → seul `print()` est montré
-
-**Capacités écran :**
-
-11. **Palette de gris** — 16 niveaux, dégradés, `display.lookup()` pour remapper la palette → tout est en noir/blanc actuellement
-12. **Grapheur de capteur** — graphe scrolling, barre horizontale/verticale, jauge circulaire, axes gradués → aucune visualisation de données
-
-### Améliorations possibles de la série "Un capteur à la fois"
-
-- Version "avec barre graphique" : même pattern mais avec une jauge visuelle en plus du texte
-- Version "avec historique" : graphe des N dernières valeurs qui scrolle
-- Versions Arduino et MakeCode des mêmes tutoriels
-
-## Conventions de code
-
-- **Langue du code** : anglais pour les commentaires et noms de fonctions
-- **Langue des textes écran** : anglais sans accents (limitation du driver SSD1327)
-- **Fichiers autonomes** : chaque `main.py` contient tout (pas de `pins.py` partagé)
-- **Pattern capteur** : étape 1 (écran) → 2 (capteur) → 3 (lire) → 4 (afficher) → 5 (boucle)
-- **Pattern actionneur** : même chose mais (actionner) au lieu de (lire)
-- **Print série** : toujours en parallèle de l'affichage écran
-- **Sleep** : 0.5s par défaut, 0.1s pour les boutons, 2s pour la batterie
+| BLE/STeaMi_talk | Communication bidirectionnelle |
+| DEMO/ | Menu combiné (sensors, buzzer, LED, screen, button) |
+| ROBOT/KS4034F/ | Moteurs, suivi de ligne, ultrason |
 
 ## Commandes utiles
 
 ```bash
 # Copier un script sur la carte
-mpremote connect auto fs cp 01_temperature/main.py :main.py
+mpremote connect auto fs cp tutorials/01_temperature/main.py :main.py
 mpremote connect auto reset
 
 # Ouvrir le REPL
