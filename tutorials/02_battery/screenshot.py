@@ -14,35 +14,31 @@ METADATA = {
     "description": "Battery state of charge from BQ27441 gauge",
 }
 
-import sys
-import os
 
-# Add project paths
-root = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(root, "lib"))
-sys.path.insert(0, os.path.join(root, "sim"))
+def draw(screen):
+    """Drawing code — runs on sim and board."""
+    pct = 72
+    mv = 3842
+    screen.clear()
+    screen.title("Battery")
+    screen.value("{}%".format(pct), y_offset=-15)
+    screen.bar(pct, y_offset=-12, color=GREEN)
+    screen.subtitle("{} mV".format(mv), "BQ27441")
+    screen.show()
 
-from steami_screen import Screen, GREEN
-from sim_backend import SimBackend
 
-# --- Simulated display (scale 3x for readable PNG) ---
-backend = SimBackend(128, 128, scale=3)
-screen = Screen(backend)
-
-# --- Same drawing code as main.py, with fixed values ---
-pct = 72
-mv = 3842
-
-screen.clear()
-screen.title("Battery")
-screen.value("{}%".format(pct), y_offset=-15)
-screen.bar(pct, y_offset=-12, color=GREEN)
-screen.subtitle("{} mV".format(mv), "BQ27441")
-screen.show()
-
-# --- Save PNG ---
-out_dir = os.path.join(root, "docs", "mockups")
-out_path = os.path.join(out_dir, "02_battery_sim.png")
-backend.save(out_path)
-print("Saved:", out_path)
+# --- PC runner ---
+if __name__ == "__main__":
+    import sys
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+    sys.path.insert(0, os.path.join(root, "lib"))
+    sys.path.insert(0, os.path.join(root, "sim"))
+    from steami_screen import Screen, GREEN  # noqa: E402
+    from sim_backend import SimBackend  # noqa: E402
+    backend = SimBackend(128, 128, scale=3)
+    draw(Screen(backend))
+    out_path = os.path.join(root, "docs", "mockups", "02_battery_sim.png")
+    backend.save(out_path)
+    print("Saved:", out_path)

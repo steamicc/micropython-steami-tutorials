@@ -14,33 +14,29 @@ METADATA = {
     "description": "Scrollable menu navigated with D-pad buttons (MCP23009E)",
 }
 
-import sys
-import os
 
-# Add project paths
-root = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(root, "lib"))
-sys.path.insert(0, os.path.join(root, "sim"))
+def draw(screen):
+    """Drawing code — runs on sim and board."""
+    items = ["Temperature", "Humidity", "Distance", "Light", "Battery", "Proximity"]
+    selected = 2
+    screen.clear()
+    screen.title("Menu")
+    screen.menu(items, selected=selected)
+    screen.show()
 
-from steami_screen import Screen
-from sim_backend import SimBackend
 
-# --- Simulated display (scale 3x for readable PNG) ---
-backend = SimBackend(128, 128, scale=3)
-screen = Screen(backend)
-
-# --- Same drawing code as main.py, with fixed values ---
-items = ["Temperature", "Humidity", "Distance", "Light", "Battery", "Proximity"]
-selected = 2  # "Distance" selected, matching SVG mockup
-
-screen.clear()
-screen.title("Menu")
-screen.menu(items, selected=selected)
-screen.show()
-
-# --- Save PNG ---
-out_dir = os.path.join(root, "docs", "mockups")
-out_path = os.path.join(out_dir, "06_dpad_menu_sim.png")
-backend.save(out_path)
-print("Saved:", out_path)
+# --- PC runner ---
+if __name__ == "__main__":
+    import sys
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+    sys.path.insert(0, os.path.join(root, "lib"))
+    sys.path.insert(0, os.path.join(root, "sim"))
+    from steami_screen import Screen  # noqa: E402
+    from sim_backend import SimBackend  # noqa: E402
+    backend = SimBackend(128, 128, scale=3)
+    draw(Screen(backend))
+    out_path = os.path.join(root, "docs", "mockups", "06_dpad_menu_sim.png")
+    backend.save(out_path)
+    print("Saved:", out_path)

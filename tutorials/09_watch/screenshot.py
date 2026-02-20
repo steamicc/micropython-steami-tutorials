@@ -14,30 +14,26 @@ METADATA = {
     "description": "Classical analog watch face with hour, minute and second hands",
 }
 
-import sys
-import os
 
-# Add project paths
-root = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(root, "lib"))
-sys.path.insert(0, os.path.join(root, "sim"))
+def draw(screen):
+    """Drawing code — runs on sim and board."""
+    screen.clear()
+    screen.watch(10, 10, 30)
+    screen.show()
 
-from steami_screen import Screen
-from sim_backend import SimBackend
 
-# --- Simulated display (scale 3x for readable PNG) ---
-backend = SimBackend(128, 128, scale=3)
-screen = Screen(backend)
-
-# --- Same drawing code as main.py, with fixed values ---
-# 10:10:30 — classic watchmaker's time
-screen.clear()
-screen.watch(10, 10, 30)
-screen.show()
-
-# --- Save PNG ---
-out_dir = os.path.join(root, "docs", "mockups")
-out_path = os.path.join(out_dir, "09_watch_sim.png")
-backend.save(out_path)
-print("Saved:", out_path)
+# --- PC runner ---
+if __name__ == "__main__":
+    import sys
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+    sys.path.insert(0, os.path.join(root, "lib"))
+    sys.path.insert(0, os.path.join(root, "sim"))
+    from steami_screen import Screen  # noqa: E402
+    from sim_backend import SimBackend  # noqa: E402
+    backend = SimBackend(128, 128, scale=3)
+    draw(Screen(backend))
+    out_path = os.path.join(root, "docs", "mockups", "09_watch_sim.png")
+    backend.save(out_path)
+    print("Saved:", out_path)
